@@ -1,0 +1,98 @@
+.albumHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.cardWrapper {
+    margin-top: 18px;
+}
+
+.wrapper {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+}
+
+.toggleText {
+    cursor: pointer;
+    color: var(--color-primary);
+}
+
+.genresHeader {
+    display: flex;
+    justify-content: flex-start;
+    align-items: baseline;
+    width: 30%;
+}
+
+.genreTab {
+    margin-top: 15px;
+    margin-bottom: 23px;
+    width: 20%;
+    transition: transform 0.3s ease-in-out;
+
+}
+
+.genreButton:active {
+    animation: zoomOut 0.5s ease-in-out;
+}
+
+.genreButton {
+    background-color: var(--color-black);
+    color: var(--color-white);
+    border: 0;
+    width: 100%;
+    height: 56px;
+    top: 30px;
+    border-radius: 2px;
+    padding: auto;
+}
+
+@keyframes zoomOut {
+    0% {
+        transform: scale(1);
+        transform: translate3d(0%, -10%, 0);
+        filter: brightness(150%);
+    }
+
+    50% {
+        transform: scale(1.1);
+        transform: translate3d(0%, -10%, 0);
+        filter: brightness(300%);
+    }
+
+    100% {
+        transform: scale(1.5);
+        transform: translate3d(0%, -20%, 0);
+        filter: brightness(350%);
+    }
+}
+
+.genreSelectedIndicator {
+    background-color: var(--color-primary);
+    width: 100%;
+    height: 4px;
+    top: 30px;
+    border-radius: 2px;
+}
+
+.genreNotSelectedIndicator {
+    background-color: var(--color-black);
+    width: 100%;
+    height: 4px;
+    top: 30px;
+    border-radius: 2px;
+}
+
+@media (max-width: 768px) {
+    .genreTab {
+        width: 40%;
+    }
+}
+
+@media (max-width: 480px) {
+    .genreTab {
+        width: 50%;
+    }
+}
