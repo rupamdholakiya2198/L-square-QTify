@@ -1,78 +1,62 @@
-import React, { useState } from "react";
-import SongCard from "../Card/SongCard";
-import { CircularProgress } from "@mui/material";
-import styles from "./Section.module.css";
+import React, { useEffect, useState } from "react";
+import styles from "./Section.module.css"
+import { CircularProgress, Tab, Tabs } from "@mui/material";
+import Card from "../Card/Card";
 import Carousel from "../Carousel/Carousel";
+import Filters from "../Filters/Filters";
 
-const Section = ({ title, type, data, genres }) => {
-  const genresData = [{ key: "all", label: "All" }];
-  genres?.forEach((genre) => genresData.push(genre));
-  const [selectedGenre, setSelectedGenre] = useState("all");
-  const filteredData = (data, filteredGenre) =>
-    filteredGenre === "all"
-      ? data
-      : data.filter((ele) => ele.genre.key === filteredGenre);
+export default function Section({ title, type, data, filterSource }) {
+    const [carouselToggle, setCarouselToggle] = useState(true);
+    const [filters, setFilters] = useState([{key: "all", label:"All"}])
+    const [selecetedFilterIndex, setSelecetedFilterIndex] = useState(0);
 
-  const [carouselToggle, setCarouselToggle] = useState(true);
-  const handleToggle = () => {
-    setCarouselToggle(!carouselToggle);
-  };
-  return (
-    <section>
-      {type === "album" ? (
-        <div className={styles.albumHeader}>
-          <h3>{title}</h3>
-          <h4 className={styles.toggleText} onClick={handleToggle}>
-            {carouselToggle ? "Show All" : "Collapse All"}
-          </h4>
-        </div>
-      ) : (
-        <div className={styles.songHeader}>
-          <h3>{title}</h3>
-          <div className={styles.genresHeader}>
-            {genresData?.map((genre) => (
-              <div className={styles.genreTab} key={genre.key}>
-                <button
-                  className={styles.genreButton}
-                  id={genre.key}
-                  onClick={(e) => setSelectedGenre(e.target.id)}
-                >
-                  {genre.label.toUpperCase()}
-                </button>
-                <div
-                  className={
-                    selectedGenre.toUpperCase() === genre.key.toUpperCase()
-                      ? styles.genreSelectedIndicator
-                      : styles.genreNotSelectedIndicator
-                  }
-                ></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      {data?.length ? (
-        <div className={styles.cardWrapper}>
-          {!carouselToggle ? (
-            <div className={styles.wrapper}>
-              {data?.map((ele) => (
-                <SongCard cardDetails={ele} type={type} Key={ele.id} />
-              ))}
+    const handleToggle = () => {
+        setCarouselToggle((prevState) => !prevState);
+    }
+
+    useEffect(() => {
+        if(filterSource){
+            filterSource().then((response) => {
+                const { data } = response; 
+                setFilters([...filters, ...data]);
+            })
+        }
+    }, []);
+
+    const showFilters = filters.length > 1;
+
+    const cardsToRender = data.filter((card) => showFilters && selecetedFilterIndex !== 0 ? card.genre.key === filters[selecetedFilterIndex].key : card);
+
+    return(
+        <div>
+            <div className={styles.header}>
+                <h3>{title}</h3>
+                {!showFilters && (<h4 className={styles.toggleText} onClick={handleToggle}>{!carouselToggle ? "Collapse All" : "Show All"}</h4>)}
             </div>
-          ) : (
-            <Carousel
-              renderCardComponent={(item) => (
-                <SongCard cardDetails={item} type={type} key={item.id} />
-              )}
-              data={type === "song" ? filteredData(data, selectedGenre) : data}
-            />
-          )}
+            {showFilters && (
+                <div className={styles.filterWrapper}>
+                <Filters filters={filters} selectedFilterIndex={selecetedFilterIndex} setSelectedFilterIndex={setSelecetedFilterIndex} /> 
+                </div>
+            )}
+            {
+                cardsToRender.length === 0 ? (
+                    <div className={styles.circularProgress}>
+                    <CircularProgress/>
+                    </div>
+                ) : (
+                    <div className={styles.cardWrapper}>
+                        {!carouselToggle ? (
+                            <div className={styles.wrapper}>
+                                {cardsToRender.map((ele) => (
+                                    <Card data={ele} type={type}/>
+                                ))}
+                            </div>
+                        ) : (
+                            <Carousel data={cardsToRender} renderComponent={(data) => <Card data={data} type={type}/>}/>
+                        )}
+                    </div>
+                )
+            }
         </div>
-      ) : (
-        <CircularProgress />
-      )}
-    </section>
-  );
-};
-
-export default Section;
+    )
+}
